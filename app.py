@@ -11,7 +11,7 @@ app = Flask(__name__)
 
 # Load the saved model and data
 model = load_model('chatbot_model.h5')
-intents = json.loads(open('meru-chatbot-dataset/intent.json').read())
+intents = json.loads(open('intent.json').read())
 words = pickle.load(open('words.pkl', 'rb'))
 classes = pickle.load(open('classes.pkl', 'rb'))
 
