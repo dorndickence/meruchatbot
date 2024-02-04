@@ -5,7 +5,9 @@ import nltk
 from nltk.stem import WordNetLemmatizer
 import numpy as np
 from keras.models import load_model
-import pyttsx3  # Text-to-speech library
+import random
+import pyttsx3
+from pyngrok import ngrok
 
 app = Flask(__name__)
 
@@ -17,6 +19,9 @@ classes = pickle.load(open('classes.pkl', 'rb'))
 
 # Initialize text-to-speech engine
 engine = pyttsx3.init()
+
+# Initialize lemmatizer
+lemmatizer = WordNetLemmatizer()
 
 # Utility functions
 def clean_up_sentence(sentence):
@@ -48,7 +53,7 @@ def getResponse(ints, intents_json):
     tag = ints[0]['intent']
     list_of_intents = intents_json['intents']
     for i in list_of_intents:
-        if i['tag'] == tag:
+        if i['tag'] ==tag:
             result = random.choice(i['responses'])
             break
     return result
@@ -66,11 +71,17 @@ def home():
 def chat():
     message = request.form['message']
     try:
-        res = chatbot_response(message)
+        res = getResponse(predict_class(message, model), intents)
         speak_response(res)  # Speak the response
     except:
         res = 'You may need to rephrase your question.'
     return render_template('chat.html', message=message, response=res)
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    # Start ngrok tunnel
+    ngrok_tunnel = ngrok.connect(5000)
+    
+    # Print the ngrok forwarding URL
+    print('Ngrok URL:', ngrok_tunnel.public_url)
+
+    app.run()
